@@ -83,32 +83,79 @@ class JardimVirtual:
         print("--------------------------\n")
 
 
-class RepositorioDeEstudos: #precisa adicionar as opções de vizualizar tudo
-    """
-    Centraliza o material de apoio (PDFs e questões).
-    """
+class repositorio:
     def __init__(self):
-        self.lista_pdfs = []
-        self.conjunto_questoes = []
-        self.historico_respostas = []
+        self.quant = 0
+        self.titulos = []
+        self.conteudo = []
+    
+    def vizualizar_tudo(self):
+        total = 0
+        print("--------------")
+        for i in self.titulos:
+            print(f'{total}: {self.titulos[total]}')
+            total +=1
+        print("--------------")
 
-    def adicionar_pdf(self, nome_pdf: str):
-        self.lista_pdfs.append(nome_pdf)
-        print(f"\n---PDF '{nome_pdf}' adicionado com sucesso.---\n")
+    def adicionar(self, titulo: str, conteudo: str):
+        self.titulos.append(titulo)
+        self.conteudo.append(conteudo)
+        self.quant +=1
 
-    def criar_resumo(self, titulo: str, conteudo: str):
-        print(f"\n---Resumo '{titulo}' salvo.---\n")
+    def ver(self, id: int):
+        print(f'o conteúdo {self.titulos[id]} é:')
+        print(f'{self.conteudo[id]}\n')
 
-    def adicionar_questao(self, questao: str):
-        self.conjunto_questoes.append(questao)
-        print("\n---Questão adicionada ao banco.---\n")
-
-    def responder_questao(self, questao_id: int, resposta: str):
-        self.historico_respostas.append({"id": questao_id, "resposta": resposta})
-        print(f"\n---Resposta da questão {questao_id} registrada no histórico.---\n")
+    def total(self):
+        print(f'o total de conteúdos é {self.quant}')
 
 
-class Meta: #preciso refinar e decidir melhor como vão funcionar as metas
+class resumo(repositorio):
+    
+    def ver(self, id: int):
+        print(f'o resumo de id {id} e título "{self.titulos[id]}" tem conteúdo:')
+        print(f'{self.conteudo[id]}')
+
+
+class questao(repositorio):
+
+    def __init__(self):
+        super().__init__()
+        self.respostas = []
+
+    def responder(self, id_questão: int, resposta: str):
+        self.respostas[id_questão] = resposta
+
+    def adicionar(self, titulo: str, conteudo: str):
+        self.titulos.append(titulo)
+        self.conteudo.append(conteudo)
+        self.respostas.append('')
+        self.quant +=1
+
+    def ver(self, id_questão: int):
+        print(f'a questão {self.titulos[id_questão]} é:')
+        print(f'{self.conteudo[id_questão]}')
+        resp = input('ver resposta? S/N').upper()
+
+        if resp=='S':
+            print(f'a resposta é: {self.respostas[id_questão]}')
+
+
+class pdf(repositorio):
+
+    def ver(self, id: int):
+        print(f'o pdf de id {id} e título "{self.titulos[id]}" é:')
+        print(f'{self.conteudo[id]}')
+
+
+class musica(repositorio):
+
+    def ver(self, id: int):
+        print(f' a música {self.titulos[id]} é:')
+        print(f'{self.conteudo[id]}')
+
+
+class Meta:
     """
     Estabelece objetivos de longo prazo e progresso semanal.
     """
@@ -129,77 +176,128 @@ class Meta: #preciso refinar e decidir melhor como vão funcionar as metas
             print("Missão não encontrada ou não concluída.")
 
 
-class Musica: #preciso ver como vai funcionar para adicionar musica, e se eu vou conseguir
-    """
-    Centraliza músicas no próprio site.
-    """
-    def __init__(self):
-        self.musica_atual = None
-        self.musicas_adicionadas = []
-        self.playlists_feitas = {}
 
-    def adicionar_musicas(self, nome_musica: str):
-        self.musicas_adicionadas.append(nome_musica)
-        print(f"Música '{nome_musica}' adicionada ao sistema.")
-
-    def remover_musicas(self, nome_musica: str):
-        if nome_musica in self.musicas_adicionadas:
-            self.musicas_adicionadas.remove(nome_musica)
-            print(f"Música '{nome_musica}' removida.")
-
-    def organizar_playlists(self, nome_playlist: str, lista_musicas: list):
-        self.playlists_feitas[nome_playlist] = lista_musicas
-        print(f"Playlist '{nome_playlist}' criada/atualizada com sucesso.")
-        
-    def tocar_playlist(self, nome_playlist: str):
-        if nome_playlist in self.playlists_feitas:
-            self.musica_atual = self.playlists_feitas[nome_playlist][0]
-            print(f"Tocando agora a playlist '{nome_playlist}'.")
-
-
-# --- ÁREA DE EXECUÇÃO ---
 if __name__ == "__main__":
     # 1. Criamos o jardim do usuário
     meu_jardim = JardimVirtual()
-    repositorio = RepositorioDeEstudos()
+    PDFs = pdf()
+    questões = questao()
+    resumos = resumo()
+    musicas = musica()
     while(1):
-        print("escolha uma opção abaixo:")
+        print("sobre o que você quer ver?")
         print("1: iniciar o timer")
         print("2: vizualizar jardim")
-        print("3: adicionar pdf")
-        print("4: adicionar questão")
-        print("5: adicionar resposta de questão")
-        print("6: adicionar resumo")
-        print("7: encerrar programa")
+        print("3: PDFs")
+        print("4: questões")
+        print("5: resumos")
+        print("6: musicas")
+        print("7: metas")
+        print("8: encerrar programa")
         opcao=int(input())
 
         if opcao == 1:
-          
+            
+            # 2. Criamos um temporizador de 15 segundos para teste rápido e passamos o jardim para ele
             tempo = int(input("digite seu tempo de foco: "))
             meu_timer = TemporizadorDeFoco(tempo_total_segundos=tempo, jardim=meu_jardim)
             
+            # 3. Iniciamos o ciclo
             meu_timer.iniciar()
+
             
         elif opcao == 2:
             meu_jardim.visualizar_jardim()
 
+
         elif opcao == 3:
-            nome = input("digite o nome do pdf: ")
-            repositorio.adicionar_pdf(nome)
+            print("o que sobre seus PDFs você quer ver?")
+            print("1: ver meus PDFs")
+            print("2: adicionar PDF")
+            print("3: ler PDF\n")
+            escolha = int(input())
+
+            if escolha == 1:
+                PDFs.vizualizar_tudo()
+
+            elif escolha == 2:
+                nome = input("digite o nome do pdf: ")
+                conteudo = input('coloque aqui o conteúdo do pdf: ')
+                PDFs.adicionar(nome, conteudo)
+
+            elif escolha == 3:
+                id = int(input("digite o id do PDF: "))
+                PDFs.ver(id)
 
         elif opcao == 4:
-            questão = input("digite a questão: ")
-            repositorio.adicionar_questao(questão)
+            print("o que sobre suas questões você quer ver?")
+            print("1: ver minhas questões")
+            print("2: adicionar questão")
+            print("3: ver questão")
+            print("4: responder questão\n")
+            escolha = int(input())
+
+            if escolha == 1:
+                questões.vizualizar_tudo()
+
+            elif escolha == 2:
+                nome = input("digite o nome da questão: ")
+                conteudo = input('coloque aqui a pergunta da questão:')
+                questões.adicionar(nome, conteudo)
+
+            elif escolha == 3:
+                id = int(input("digite o id da questão"))
+                questões.ver(id)
+
+            elif escolha == 4:
+                id = int(input("digite o id da questão: "))
+                resp = input('coloque aqui a resposta da questão:')
+                questões.responder(id, resp)
+
 
         elif opcao == 5:
-            resposta = input("digite a resposta da questão: ")
-            id = len(repositorio.historico_respostas)
-            repositorio.responder_questao(id, resposta)
-        
-        elif opcao == 6:
-            titulo = input("digite o nome do resumo: ")
-            conteúdo = input("digite o conteúdo do resumo: ")
-            repositorio.criar_resumo(titulo, conteúdo)
+            print("o que sobre seus resumos você quer ver?")
+            print("1: ver meus resumos")
+            print("2: adicionar resumo")
+            print("3: ler resumo\n")
+            escolha = int(input())
 
+            if escolha == 1:
+                resumos.vizualizar_tudo()
+
+            elif escolha == 2:
+                nome = input("digite o nome do resumo: ")
+                conteudo = input('coloque aqui o conteúdo do resumo: ')
+                resumos.adicionar(nome, conteudo)
+
+            elif escolha == 3:
+                id = int(input("digite o id do resumo: "))
+                resumos.ver(id)
+    
+
+        elif opcao == 6:
+            print("o que sobre suas musicas você quer ver?")
+            print("1: ver minhas musicas")
+            print("2: adicionar musica")
+            print("3: escutar musica\n")
+            escolha = int(input())
+
+            if escolha == 1:
+                musicas.vizualizar_tudo()
+
+            elif escolha == 2:
+                nome = input("digite o nome da musica: ")
+                conteudo = input('coloque aqui o link da musica:')
+                musicas.adicionar(nome, conteudo)
+
+            elif escolha == 3:
+                id = int(input("digite o id da musica"))
+                musicas.ver(id)
+
+        
         elif opcao == 7:
+            print("ainda em andamento\n")
+
+    
+        elif opcao == 8:
             break
