@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>🌳 Seu Jardim Virtual</h2>
+    
+    {% if plantas %}
+        <p>Você já cultivou <strong>{{ plantas|length }}</strong> plantas! <br>
+        <span style="font-size: 0.9rem; color: #666;">Dica: Clique e arraste as plantas para reorganizar o seu jardim.</span></p>
+        
+        <div id="jardim-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px;">
+            {% for planta in plantas %}
+                <div class="planta-item" draggable="true" data-id="{{ planta[0] }}" 
+                     style="background: #E8F5E9; padding: 20px; border-radius: 10px; border: 2px solid #A5D6A7; cursor: grab; transition: transform 0.2s; user-select: none;">
+                    <h1 style="margin: 0; font-size: 3rem; pointer-events: none;">
+                        {% if planta[1] == 'Carvalho' %} 🌳 
+                        {% elif planta[1] == 'Cerejeira' %} 🌸 
+                        {% elif planta[1] == 'Cacto' %} 🌵 
+                        {% else %} 🌱 {% endif %}
+                    </h1>
+                    <p style="margin: 10px 0 0 0; font-weight: bold; pointer-events: none;">{{ planta[1] }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #666; margin: 40px 0;">Seu jardim está vazio. Vá fazer uma sessão de foco!</p>
+        <a href="/timer" class="btn">Plantar minha primeira árvore</a>
+    {% endif %}
+
+    <script>
+        const items = document.querySelectorAll('.planta-item');
+        let dragItem = null;
+
+        items.forEach(item => {
+            // Quando começa a arrastar
+            item.addEventListener('dragstart', function(e) {
+                dragItem = this;
+                setTimeout(() => this.style.opacity = '0.4', 0);
+            });
+
+            // Quando termina de arrastar
+            item.addEventListener('dragend', function() {
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                    dragItem = null;
+                    salvarNovaOrdem(); // Salva no banco de dados
+                }, 0);
+            });
+
+            // Necessário para permitir soltar
+            item.addEventListener('dragover', e => e.preventDefault());
+
+            // Efeito visual quando passa por cima de outra planta
+            item.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                if (this !== dragItem) this.style.transform = "scale(1.05) translateY(-5px)";
+            });
+
+            // Tira o efeito quando sai de cima
+            item.addEventListener('dragleave', function() {
+                this.style.transform = "scale(1)";
+            });
+
+            // Quando solta a planta
+            item.addEventListener('drop', function() {
+                this.style.transform = "scale(1)";
+                if (this !== dragItem) {
+                    let allItems = [...document.querySelectorAll('.planta-item')];
+                    let draggedIndex = allItems.indexOf(dragItem);
+                    let droppedIndex = allItems.indexOf(this);
+
+                    // Troca os elementos de lugar na tela
+                    if (draggedIndex < droppedIndex) {
+                        this.parentNode.insertBefore(dragItem, this.nextSibling);
+                    } else {
+                        this.parentNode.insertBefore(dragItem, this);
+                    }
+                }
+            });
+        });
+
+        // Função que avisa o Python sobre a nova ordem
+        function salvarNovaOrdem() {
+            let novaOrdem = [];
+            document.querySelectorAll('.planta-item').forEach(item => {
+                novaOrdem.push(item.getAttribute('data-id'));
+            });
+
+            // Envia um POST silencioso (AJAX) para a rota /reordenar
+            fetch('/reordenar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novaOrdem)
+            });
+        }
+    </script>
+{% endblock %}

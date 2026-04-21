@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>🎯 Gestão de Metas</h2>
+    <div style="background: #E8F5E9; padding: 20px; border-radius: 10px; border: 1px solid #A5D6A7; margin-bottom: 30px;">
+        <h3>Progresso Global</h3>
+        <h1 style="font-size: 3rem; color: #2E7D32; margin: 10px 0;">{{ total_minutos }} min</h1>
+        <p style="margin: 0;">Total de minutos focados nesta conta.</p>
+    </div>
+
+    {% if meta > 0 %}
+        <div style="text-align: left;">
+            <h3>Meta Atual: {{ meta }} minutos</h3>
+            <div style="background: #ddd; height: 30px; border-radius: 15px; overflow: hidden; margin: 10px 0;">
+                <div style="background: #2E7D32; height: 100%; width: {{ (total_minutos / meta * 100) if total_minutos < meta else 100 }}%;"></div>
+            </div>
+            <p style="text-align: center; font-weight: bold;">{{ total_minutos }} / {{ meta }} minutos concluídos</p>
+            
+            {% if pode_resgatar %}
+                <div style="background: #FFF9C4; padding: 20px; border-radius: 10px; border: 1px solid #FBC02D; text-align: center; margin-top: 20px;">
+                    <h3 style="margin-top: 0;">🏆 Objetivo Concluído!</h3>
+                    <form method="POST">
+                        <button type="submit" name="resgatar" class="btn" style="background: #FBC02D; color: #333; font-weight: bold; font-size: 1.2rem;">Resgatar 5 Árvores Bônus 🌳</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px;">
+            <h3>Definir Novo Objetivo</h3>
+            <form method="POST" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <label>Quantos minutos totais você quer atingir?</label>
+                <input type="number" name="nova_meta" min="1" placeholder="Ex: 10" required style="width: 150px; text-align: center;">
+                <button type="submit" class="btn">Confirmar Meta</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

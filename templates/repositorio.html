@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 style="text-transform: capitalize;">{{ tipo if tipo != 'questao' else 'Questões' }}</h2>
+
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left; border: 1px solid #eee;">
+        <h3 style="margin-top: 0;">Adicionar Novo(a) {{ tipo|capitalize }}</h3>
+        <form action="/adicionar/{{ tipo }}" method="POST" enctype="multipart/form-data">
+            <input type="text" name="titulo" placeholder="Título do material..." required>
+            
+            {% if tipo in ['pdf', 'musica'] %}
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Selecione o arquivo {{ 'PDF' if tipo == 'pdf' else 'de Áudio (MP3/WAV)' }}:</label>
+                <input type="file" name="arquivo" accept="{{ '.pdf' if tipo == 'pdf' else 'audio/*' }}" required style="padding: 5px;">
+            {% else %}
+                <textarea name="conteudo" placeholder="{{ 'Digite a Pergunta aqui...' if tipo == 'questao' else 'Cole seu Resumo aqui...' }}" rows="4" required></textarea>
+            {% endif %}
+
+            {% if tipo == 'questao' %}
+                <textarea name="resposta" placeholder="Digite a Resposta Correta (Gabarito)" rows="2" required></textarea>
+            {% endif %}
+            
+            <button type="submit" class="btn">Salvar</button>
+        </form>
+    </div>
+
+    <div style="text-align: left;">
+        {% if itens %}
+            {% for item in itens %}
+                <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fff;">
+                    <h3 style="margin-top: 0; color: #2E7D32; border-bottom: 2px solid #E8F5E9; padding-bottom: 10px;">{{ item[1] }}</h3>
+                    
+                    {% if tipo == 'pdf' %}
+                        <a href="{{ url_for('uploaded_file', filename=item[2]) }}" target="_blank" class="btn" style="background: #1976D2; margin-bottom: 15px;">👁️ Abrir PDF</a>
+                        <embed src="{{ url_for('uploaded_file', filename=item[2]) }}" type="application/pdf" width="100%" height="400px" style="border: 1px solid #ccc; border-radius: 5px;">
+                    
+                    {% elif tipo == 'musica' %}
+                        <div style="background: #E8F5E9; padding: 15px; border-radius: 5px; border: 1px solid #C8E6C9;">
+                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">🎵 Em reprodução contínua (Loop)</p>
+                            <audio controls loop style="width: 100%; outline: none;">
+                                <source src="{{ url_for('uploaded_file', filename=item[2]) }}">
+                                Seu navegador não suporta reprodução de áudio.
+                            </audio>
+                        </div>
+
+                    {% elif tipo == 'resumo' %}
+                        <p style="white-space: pre-wrap; line-height: 1.6;">{{ item[2] }}</p>
+                    
+                    {% elif tipo == 'questao' %}
+                        <p style="font-size: 1.1rem;"><strong>Pergunta:</strong> {{ item[2] }}</p>
+                        <div style="background: #F1F8E9; padding: 15px; border-radius: 5px; margin-top: 15px; border: 1px solid #C8E6C9;">
+                            <label style="font-weight: bold;">Sua Resposta:</label>
+                            <textarea id="user-resp-{{ item[0] }}" placeholder="Responda aqui..." rows="2" style="margin-top: 5px;"></textarea>
+                            <button class="btn" onclick="document.getElementById('feedback-{{ item[0] }}').style.display='block'">Verificar Gabarito</button>
+                            <div id="feedback-{{ item[0] }}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #A5D6A7;">
+                                <p style="color: #555; margin: 0 0 5px 0;"><strong>Resposta Correta:</strong></p>
+                                <p style="color: #2E7D32; font-weight: bold; margin: 0; white-space: pre-wrap;">{{ item[3] }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #666;">Ainda não há materiais aqui. Adicione o primeiro acima!</p>
+        {% endif %}
+    </div>
+{% endblock %}
