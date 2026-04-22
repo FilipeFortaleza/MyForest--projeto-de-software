@@ -1,0 +1,16 @@
+para testar o projeto acesse o site: lipe004.pythonanywhere.com
+
+-perfil para teste-
+login: usuario1
+senha: 1234
+
+disponível até 22/05
+
+
+-- alternativamente, para rodar localmente --
+
+instalar o flask (caso não tenha) com: pip install flask
+instalar o flask_login (caso não tenha) com: pip install Flask-Login Werkzeug
+crie uma pasta templates e coloque todos os arquivos html nela
+execute o arquivo app.py
+acesse http://127.0.0.1:5000 no seu navegador
